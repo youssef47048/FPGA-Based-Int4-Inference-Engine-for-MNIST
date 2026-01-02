@@ -1,0 +1,36 @@
+# Python / Jupyter
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+data/
+*.pkl
+
+# Verilog / ModelSim / QuestaSim
+work/
+transcript
+*.wlf
+*.vcd
+*.bak
+*.log
+*.scc
+*.qdb
+*.qpg
+*.qtl
+*.mti
+*.mpf
+*.mpf.bak
+*.cr.mti
+_vmake
+_info
+
+# Temporary / Generated
+VERILOG/temp/
+
+# OS / Editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.cursor/
+
