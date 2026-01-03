@@ -16,7 +16,28 @@ The system is designed to perform inference on handwritten digits (MNIST dataset
   - No bias terms used in layers (simplified MAC units).
   - ReLU activation functions.
   - Pipelined Multiply-Accumulate (MAC) operations.
+##  Quantization Details
 
+To deploy the model on FPGA with minimal resource usage, we converted the 32-bit floating-point model to **4-bit Integers (Int4)**. This compression reduces memory usage by **8x** and allows the arithmetic logic to fit entirely within on-chip Block RAM.
+
+### Methodology: Post-Training Static Symmetric Quantization
+
+We utilize a symmetric quantization scheme that maps the floating-point range to a fixed integer range centered around zero (for weights) or starting at zero (for activations).
+
+* **Weights:** Quantized to **Signed 4-bit Integers**.
+    * Range: `[-8, +7]`
+    * Scaling: Per-layer symmetric scaling based on the absolute maximum weight value.
+    * *Note: Floating-point 0.0 is exactly mapped to Integer 0 to simplify hardware multiplication.*
+
+* **Activations:** Quantized to **Unsigned 4-bit Integers**.
+    * Range: `[0, 15]`
+    * Logic: Since all layers use **ReLU** (Rectified Linear Unit), negative values are zeroed out, effectively allowing us to use the full 4-bit unsigned range for positive values.
+
+### Hardware Arithmetic Handling
+The hardware performs mixed-sign arithmetic to maintain accuracy:
+1.  **Input Padding:** Unsigned 4-bit inputs (`0..15`) are zero-padded to be treated as positive signed numbers.
+2.  **Accumulation:** Intermediate sums are stored in a **20-bit Signed Accumulator** to prevent overflow during the summation of 784 products.
+3.  **Scale Management:** The quantization scale factors are baked into the weights during the export process, meaning the hardware does not need to perform complex floating-point division at runtime.
 ## Directory Structure
 
 ```
